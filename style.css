@@ -1,0 +1,113 @@
+/* Design token: custom properties */
+:root {
+  --bg: #f6f3ee;
+  --fg: #1d2a38;
+  --card: #ffffff;
+  --accent: #c98a2b;
+  --accent-fg: #1d2a38;
+  --radius: 14px;
+  --dur: 0.5s;
+  --gap: 1.25rem;
+  --font: "Segoe UI", system-ui, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #121a24;
+  --fg: #eaeef3;
+  --card: #1c2836;
+  --accent: #e0a64a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: var(--font);
+  background: var(--bg); color: var(--fg);
+  transition: background var(--dur), color var(--dur);
+}
+main, .top { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+h1 { font-size: clamp(1.8rem, 5vw, 3rem); margin: 1rem 0 .25rem; }
+.lead { margin: 0 0 1.5rem; max-width: 60ch; }
+
+.top { display: flex; justify-content: space-between; align-items: center; }
+.logo { display: flex; align-items: center; gap: .5rem; color: inherit; text-decoration: none; font-weight: 700; }
+#themeBtn {
+  font: inherit; padding: .5rem 1rem; border-radius: var(--radius);
+  border: 2px solid var(--accent); background: transparent; color: var(--fg); cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+#themeBtn:hover { background: var(--accent); color: var(--accent-fg); transform: translateY(-2px); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* Loader */
+#loader {
+  position: fixed; inset: 0; display: grid; place-items: center;
+  background: var(--bg); z-index: 10; transition: opacity .4s, visibility .4s;
+}
+#loader.done { opacity: 0; visibility: hidden; }
+.spinner {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 5px solid var(--card); border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Gallery */
+.gallery {
+  display: grid; gap: var(--gap);
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: row;
+}
+.card { grid-column: auto; grid-row: auto; }
+@media (max-width: 800px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .gallery { grid-template-columns: 1fr; } }
+
+/* Stagger entrance: delay computed from --i */
+.card {
+  perspective: 900px;
+  opacity: 0;
+  animation: rise .6s ease forwards;
+  animation-delay: calc(var(--i) * 120ms + 300ms);
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* 3D flip card */
+.flip {
+  position: relative; display: block; width: 100%; aspect-ratio: 4 / 3;
+  padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: inherit;
+  transform-style: preserve-3d;
+  transition: transform .7s, box-shadow .3s;
+  border-radius: var(--radius);
+}
+.card:hover .flip,
+.card:focus-within .flip,
+.flip.flipped { transform: rotateY(180deg); }
+
+.face {
+  position: absolute; inset: 0; border-radius: var(--radius); overflow: hidden;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.front img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
+.front:hover img { transform: scale(1.08); }
+.back {
+  transform: rotateY(180deg); background: var(--card); color: var(--fg);
+  display: flex; flex-direction: column; justify-content: center; gap: .4rem;
+  padding: 1.25rem; text-align: left; border: 2px solid var(--accent);
+}
+.back b { font-size: 1.25rem; color: var(--accent); }
+
+/* Multimedia */
+.media { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 2.5rem; }
+.media figure { margin: 0; }
+video, iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius); background: #000; }
+figcaption { margin-top: .5rem; font-size: .9rem; opacity: .8; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; }
+  .card { opacity: 1; }
+  .card:hover .flip, .card:focus-within .flip, .flip.flipped { transform: none; }
+  .card:hover .back, .card:focus-within .back, .flip.flipped .back { transform: none; z-index: 1; }
+  .card:hover .front, .card:focus-within .front, .flip.flipped .front { visibility: hidden; }
+}
